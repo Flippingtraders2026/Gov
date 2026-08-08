@@ -689,21 +689,36 @@ To apply for a pension: proof of age, a bank account, and a residence certificat
 Tax filing is open until the department's published deadline each cycle. Required: income statement, ID proof, and the previous year's filing reference number. Refunds are processed within 45 days of filing.
 
 [Municipal Records Office, Certificate Procedures §1.3]
-For a birth certificate: hospital discharge summary, parents' ID proof, and the application form, submitted at the municipal office. Processing takes 7-10 working days. Death and domicile certificates follow a similar process with different supporting documents.
+For a birth certificate: hospital discharge summary, parents' ID proof, and the application form, submitted at the municipal office. Processing takes 7-10 working days. Death, income, caste, and domicile certificates follow a similar process with different supporting documents specific to each certificate type.
 
 [Licensing Authority, Renewal Rules §3.4]
-License renewals require the existing license number, a recent photograph, and the renewal fee. Most renewals can be completed online; first-time licenses require an in-person visit.
+License renewals (driving, trade, professional) require the existing license number, a recent photograph, and the renewal fee. Most renewals can be completed online; first-time licenses require an in-person visit and, for driving licenses, a test.
 
 [Welfare Schemes Directory §1.0]
 Welfare scheme eligibility depends on household income, category, and location. Citizens should describe their situation so the applicable scheme can be identified.
+
+[Identity & Enrolment Services §5.1]
+Aadhaar (UID) enrolment or updates: proof of identity, proof of address, and a biometric appointment at an Aadhaar Enrolment Centre; no fee for new enrolment. PAN card: identity proof, address proof, and a passport-size photo, applied online via NSDL/UTIITSL or in person. Voter ID (EPIC): age and residence proof, filed via the Election Commission's portal or at the local electoral office.
+
+[Passport & Travel Documents §6.0]
+Passport applications require proof of identity, address, and date of birth, submitted online with an appointment at a Passport Seva Kendra. Police verification is typically required before issuance; processing time varies by application type (normal or tatkal/urgent).
+
+[Ration Card & Food Security §7.2]
+Ration card applications require proof of residence, household income details, and family member ID proofs, submitted at the local food and civil supplies office. Category (APL/BPL/priority) determines entitlements.
+
+[Marriage Registration §8.0]
+Marriage certificates require proof of marriage (invitation or photographs), ID and address proof of both parties, and witness details, filed at the local marriage registrar's office within the prescribed period after the ceremony.
 `.trim();
 
   function systemPromptFor(languageName){
-    return `You are Sahayak, an AI citizen service assistant for a government portal. You answer citizen questions ONLY using the official information provided below — never invent policy details.
+    return `You are Sahayak, an AI citizen service assistant for a government portal, designed to help with a broad range of citizen services (taxes, pensions, certificates, licenses, welfare schemes, identity documents, passports, ration cards, and more).
 
-Respond ONLY in ${languageName}, regardless of what language the question is asked in. Keep the answer to 2-4 short sentences, plain and practical, written for someone unfamiliar with bureaucratic process. If the information below doesn't cover the question, say so politely (in ${languageName}) and suggest which department to contact instead.
+Respond ONLY in ${languageName}, regardless of what language the question is asked in. Keep the answer to 2-4 short sentences, plain and practical, written for someone unfamiliar with bureaucratic process.
 
-After your answer, on a new line, add a short citation starting with "Source:" (translate the word "Source" into ${languageName} too) naming the department/section from the information below that you used. If you couldn't answer from the information below, omit the Source line.
+You have two ways to answer:
+1. If the question is covered by the OFFICIAL INFORMATION below, answer from it and end with a citation line starting with "Source:" (translate the word "Source" into ${languageName} too), naming the relevant department/section.
+2. If the question is about a citizen/government service but NOT covered by the official information below, you may answer using your own general knowledge of how such services typically work. In that case, do NOT invent a "Source:" line — instead end with a brief disclaimer sentence (in ${languageName}) noting this is general guidance, not sourced from an official document, and that the citizen should confirm exact requirements with the relevant department.
+3. If the question is unrelated to government/citizen services entirely, politely say so (in ${languageName}) and redirect toward what you can help with.
 
 OFFICIAL INFORMATION:
 ${KNOWLEDGE_BASE}`;

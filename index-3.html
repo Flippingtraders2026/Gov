@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sahayak — AI Citizen Service Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16233f;
+    --navy-deep:#0d1626;
+    --paper:#f6f3ec;
+    --paper-dim:#ece7db;
+    --gold:#c69a3d;
+    --gold-soft:#e4c583;
+    --ink:#26293a;
+    --ink-soft:#5b6072;
+    --green:#2f6f4e;
+    --line:rgba(22,35,63,0.14);
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    margin:0;
+    color:var(--navy);
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    display:flex;
+    align-items:center;
+    gap:0.6em;
+  }
+  .eyebrow::before{
+    content:"";
+    width:18px;height:1px;background:var(--gold);
+  }
+  a{color:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+
+  /* NAV */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(246,243,236,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.wrap{
+    display:flex;align-items:center;justify-content:space-between;
+    height:72px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .seal{
+    width:34px;height:34px;border-radius:50%;
+    border:1.5px solid var(--navy);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;font-weight:600;font-size:1rem;
+    color:var(--navy);
+    position:relative;
+  }
+  .seal::after{
+    content:"";position:absolute;inset:4px;border:1px solid var(--gold);border-radius:50%;
+  }
+  .brand-name{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;color:var(--navy);}
+  .brand-sub{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;color:var(--ink-soft);text-transform:uppercase;display:block;margin-top:-2px;}
+  .navlinks{display:flex;gap:36px;font-size:0.9rem;}
+  .navlinks a{text-decoration:none;color:var(--ink-soft);transition:color .2s;}
+  .navlinks a:hover{color:var(--navy);}
+  .nav-cta{
+    background:var(--navy);color:var(--paper);
+    padding:10px 20px;
+    font-size:0.85rem;font-weight:500;
+    text-decoration:none;
+    border-radius:var(--radius);
+    transition:background .2s;
+  }
+  .nav-cta:hover{background:var(--navy-deep);}
+  @media(max-width:860px){.navlinks{display:none;}}
+
+  /* API KEY BAR */
+  .key-bar{
+    background:var(--navy-deep);
+    border-bottom:1px solid rgba(246,243,236,0.14);
+  }
+  .key-bar-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:20px;flex-wrap:wrap;
+    padding:12px 32px;
+  }
+  .key-bar-label{
+    color:rgba(246,243,236,0.75);
+    font-size:0.8rem;
+    max-width:640px;
+    line-height:1.4;
+  }
+  .key-bar-form{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .key-bar-form input{
+    background:rgba(246,243,236,0.08);
+    border:1px solid rgba(246,243,236,0.25);
+    color:var(--paper);
+    padding:8px 11px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    border-radius:2px;
+    outline:none;
+    width:200px;
+  }
+  .key-bar-form input::placeholder{color:rgba(246,243,236,0.4);}
+  .key-bar-form button{
+    background:var(--gold);
+    border:none;color:var(--navy-deep);
+    padding:8px 16px;font-weight:600;font-size:0.78rem;
+    border-radius:2px;cursor:pointer;
+  }
+  .key-bar-link{
+    color:var(--gold-soft);font-size:0.78rem;text-decoration:none;
+  }
+  .key-bar-link:hover{text-decoration:underline;}
+  .key-bar.saved{
+    background:#1c3326;
+  }
+  .key-bar.saved .key-bar-label{color:rgba(246,243,236,0.7);}
+  @media(max-width:700px){.key-bar-inner{padding:12px 20px;}}
+
+  /* HERO */
+  .hero{
+    padding:88px 0 60px;
+    position:relative;
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+  .hero::before{
+    content:"";
+    position:absolute; top:-120px; right:-160px;
+    width:520px;height:520px;
+    border:1px solid var(--line);
+    border-radius:50%;
+  }
+  .hero::after{
+    content:"";
+    position:absolute; top:-40px; right:-80px;
+    width:340px;height:340px;
+    border:1px solid var(--line);
+    border-radius:50%;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:56px;
+    align-items:start;
+    position:relative;
+  }
+  .hero h1{
+    font-size:clamp(2.3rem,4.2vw,3.6rem);
+    line-height:1.06;
+    margin:20px 0 22px;
+    letter-spacing:-0.01em;
+  }
+  .hero h1 em{
+    font-style:italic;color:var(--gold);
+  }
+  .hero p.lede{
+    font-size:1.08rem;
+    color:var(--ink-soft);
+    max-width:46ch;
+    line-height:1.6;
+    margin-bottom:32px;
+  }
+  .hero-actions{display:flex;gap:16px;margin-bottom:44px;flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--navy);color:var(--paper);
+    padding:14px 26px;
+    text-decoration:none;
+    font-size:0.92rem;font-weight:500;
+    border-radius:var(--radius);
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .btn-ghost{
+    border:1px solid var(--navy);
+    color:var(--navy);
+    padding:14px 26px;
+    text-decoration:none;
+    font-size:0.92rem;font-weight:500;
+    border-radius:var(--radius);
+  }
+  .stat-row{
+    display:flex;gap:0;
+    border-top:1px solid var(--line);
+    max-width:520px;
+  }
+  .stat{
+    flex:1;padding:18px 18px 0 0;
+    border-right:1px solid var(--line);
+  }
+  .stat:last-child{border-right:none;}
+  .stat .num{font-family:'Fraunces',serif;font-size:1.7rem;color:var(--navy);}
+  .stat .label{font-size:0.76rem;color:var(--ink-soft);margin-top:2px;}
+
+  /* TICKET / SIGNATURE DEMO WIDGET */
+  .ticket{
+    background:var(--navy);
+    border-radius:4px;
+    color:var(--paper);
+    padding:0;
+    box-shadow:0 30px 60px -25px rgba(13,22,38,0.5);
+    overflow:hidden;
+    position:relative;
+  }
+  .ticket-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 22px;
+    border-bottom:1px dashed rgba(246,243,236,0.25);
+  }
+  .ticket-head .tk{
+    font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.1em;
+    color:var(--gold-soft);text-transform:uppercase;
+  }
+  .lang-toggle{display:flex;gap:6px;}
+  .lang-toggle button{
+    background:transparent;
+    border:1px solid rgba(246,243,236,0.3);
+    color:var(--paper);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.68rem;
+    padding:5px 9px;
+    cursor:pointer;
+    border-radius:2px;
+    letter-spacing:0.03em;
+  }
+  .lang-toggle button.active{
+    background:var(--gold);border-color:var(--gold);color:var(--navy-deep);font-weight:600;
+  }
+  .ticket-body{
+    padding:22px;
+    min-height:260px;
+    display:flex;flex-direction:column;
+    gap:14px;
+  }
+  .msg{
+    max-width:88%;
+    padding:11px 14px;
+    font-size:0.88rem;
+    line-height:1.5;
+    border-radius:3px;
+  }
+  .msg.user{
+    align-self:flex-end;
+    background:rgba(246,243,236,0.14);
+    color:var(--paper);
+  }
+  .msg.bot{
+    align-self:flex-start;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .msg.bot .src{
+    display:block;margin-top:8px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.65rem;color:var(--green);
+    letter-spacing:0.02em;
+  }
+  .ticket-foot{
+    display:flex;gap:10px;
+    padding:16px 22px 20px;
+    border-top:1px solid rgba(246,243,236,0.14);
+  }
+  .ticket-foot input{
+    flex:1;
+    background:rgba(246,243,236,0.08);
+    border:1px solid rgba(246,243,236,0.22);
+    color:var(--paper);
+    padding:11px 13px;
+    font-family:'Inter',sans-serif;
+    font-size:0.86rem;
+    border-radius:2px;
+    outline:none;
+  }
+  .ticket-foot input::placeholder{color:rgba(246,243,236,0.45);}
+  .ticket-foot button{
+    background:var(--gold);
+    border:none;
+    color:var(--navy-deep);
+    padding:0 20px;
+    font-weight:600;
+    font-size:0.85rem;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .try-hint{
+    font-size:0.72rem;color:var(--ink-soft);margin-top:10px;text-align:center;
+  }
+
+  .lang-select{
+    background:var(--navy);
+    border:1px solid rgba(246,243,236,0.3);
+    color:var(--paper);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.7rem;
+    letter-spacing:0.02em;
+    padding:6px 9px;
+    border-radius:2px;
+    cursor:pointer;
+    outline:none;
+  }
+  .lang-select option{
+    background:var(--navy);color:var(--paper);
+  }
+  .msg.bot.typing{
+    display:flex;align-items:center;gap:5px;
+    padding:13px 16px;
+  }
+  .msg.bot.typing span{
+    width:5px;height:5px;border-radius:50%;
+    background:var(--ink-soft);
+    animation:blink 1.1s infinite ease-in-out;
+  }
+  .msg.bot.typing span:nth-child(2){animation-delay:.15s;}
+  .msg.bot.typing span:nth-child(3){animation-delay:.3s;}
+  @keyframes blink{0%,80%,100%{opacity:0.25;}40%{opacity:1;}}
+  .msg.bot.error{background:#f3e2df;color:#7a3b2e;}
+
+  @media(max-width:900px){
+    .hero-grid{grid-template-columns:1fr;}
+  }
+
+  /* SECTION SHARED */
+  section{padding:84px 0;}
+  .section-head{
+    max-width:640px;
+    margin-bottom:52px;
+  }
+  .section-head h2{
+    font-size:clamp(1.7rem,2.6vw,2.3rem);
+    margin-top:16px;
+    line-height:1.15;
+  }
+  .section-head p{
+    color:var(--ink-soft);
+    margin-top:14px;
+    line-height:1.6;
+    max-width:56ch;
+  }
+
+  /* DEPARTMENTS / COUNTER WINDOWS */
+  .counters{
+    border-top:1px solid var(--line);
+    border-left:1px solid var(--line);
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+  }
+  .counter{
+    border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    padding:28px 22px;
+    background:var(--paper);
+    transition:background .2s;
+  }
+  .counter:hover{background:var(--paper-dim);}
+  .counter .win-no{
+    font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--gold);letter-spacing:0.08em;
+  }
+  .counter h3{
+    font-size:1.05rem;margin-top:14px;
+  }
+  .counter p{
+    font-size:0.84rem;color:var(--ink-soft);margin-top:10px;line-height:1.55;
+  }
+  @media(max-width:960px){.counters{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.counters{grid-template-columns:1fr;}}
+
+  /* FLOW */
+  .flow-band{background:var(--navy);color:var(--paper);}
+  .flow-band .section-head h2{color:var(--paper);}
+  .flow-band .eyebrow{color:var(--gold-soft);}
+  .flow-band .eyebrow::before{background:var(--gold-soft);}
+  .flow-band .section-head p{color:rgba(246,243,236,0.68);}
+  .flow{
+    display:flex;
+    border-top:1px solid rgba(246,243,236,0.18);
+  }
+  .flow-step{
+    flex:1;
+    padding:26px 20px 0;
+    border-right:1px solid rgba(246,243,236,0.18);
+    position:relative;
+  }
+  .flow-step:last-child{border-right:none;}
+  .flow-step .fs-label{
+    font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--gold-soft);letter-spacing:0.08em;
+  }
+  .flow-step h3{
+    color:var(--paper);font-size:1rem;margin-top:12px;
+  }
+  .flow-step p{
+    font-size:0.82rem;color:rgba(246,243,236,0.65);margin-top:8px;line-height:1.5;
+  }
+  .flow-arrow{
+    position:absolute;right:-9px;top:26px;
+    color:var(--gold-soft);font-size:0.9rem;
+  }
+  .flow-step:last-child .flow-arrow{display:none;}
+  @media(max-width:900px){
+    .flow{flex-direction:column;}
+    .flow-step{border-right:none;border-bottom:1px solid rgba(246,243,236,0.18);padding-bottom:22px;}
+    .flow-arrow{display:none;}
+  }
+
+  /* OUTCOMES */
+  .outcomes{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .outcome{
+    background:var(--paper);padding:36px 30px;
+  }
+  .outcome .num{
+    font-family:'Fraunces',serif;font-size:2.6rem;color:var(--navy);line-height:1;
+  }
+  .outcome .num .unit{font-size:1.3rem;color:var(--gold);}
+  .outcome p{margin-top:14px;font-size:0.9rem;color:var(--ink-soft);line-height:1.55;}
+  @media(max-width:800px){.outcomes{grid-template-columns:1fr;}}
+
+  /* FOOTER */
+  footer{
+    border-top:1px solid var(--line);
+    padding:44px 0;
+  }
+  .footer-grid{
+    display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;
+  }
+  footer .brand-name{font-size:1rem;}
+  footer p{color:var(--ink-soft);font-size:0.82rem;max-width:38ch;line-height:1.5;}
+  .fine{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="brand">
+      <div class="seal">S</div>
+      <div>
+        <div class="brand-name">Sahayak</div>
+        <span class="brand-sub">Citizen Service Assistant</span>
+      </div>
+    </div>
+    <div class="navlinks">
+      <a href="#services">Services</a>
+      <a href="#how">How it works</a>
+      <a href="#outcomes">Outcomes</a>
+      <a href="#try">Try it</a>
+    </div>
+    <a href="#try" class="nav-cta">Try the assistant</a>
+  </nav>
+</header>
+
+<div id="keyBar" class="key-bar">
+  <div class="wrap key-bar-inner">
+    <span class="key-bar-label">🔑 Enter a free Google Gemini API key to activate the live demo below — it's stored only in your browser, never sent anywhere but Google's API.</span>
+    <div class="key-bar-form">
+      <input id="apiKeyInput" type="password" placeholder="AIzaSy…">
+      <button id="apiKeySave">Save key</button>
+      <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="key-bar-link">Get a free key →</a>
+    </div>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">AI-Powered Citizen Service</span>
+      <h1>One window for<br>every <em>government</em><br>query.</h1>
+      <p class="lede">Departments field thousands of questions a day about taxes, pensions, licenses, and welfare schemes. Sahayak answers them instantly, in the citizen's own language, grounded in official documents — no queue required.</p>
+      <div class="hero-actions">
+        <a href="#try" class="btn-primary">Try the live demo →</a>
+        <a href="#how" class="btn-ghost">See how it works</a>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><div class="num">24×7</div><div class="label">Digital availability</div></div>
+        <div class="stat"><div class="num">12+</div><div class="label">Languages supported</div></div>
+        <div class="stat"><div class="num">1000s</div><div class="label">Daily queries handled</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="ticket">
+        <div class="ticket-head">
+          <span class="tk">Token · Live Demo</span>
+          <select class="lang-select" id="langSelect">
+            <option value="English">EN — English</option>
+            <option value="Hindi">हिं — Hindi</option>
+            <option value="Telugu">తె — Telugu</option>
+            <option value="Tamil">த — Tamil</option>
+            <option value="Malayalam">മ — Malayalam</option>
+            <option value="Kannada">ಕ — Kannada</option>
+            <option value="Bhojpuri">भो — Bhojpuri</option>
+            <option value="Spanish">ES — Spanish</option>
+          </select>
+        </div>
+        <div class="ticket-body" id="chatBody"></div>
+        <div class="ticket-foot">
+          <input id="chatInput" type="text" placeholder="Ask about pensions, tax, certificates…">
+          <button id="chatSend">Ask</button>
+        </div>
+      </div>
+      <p class="try-hint">Try: “How do I apply for a pension?” or “What documents for a birth certificate?”</p>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Service Windows</span>
+      <h2>Every department, one assistant.</h2>
+      <p>Sahayak sits in front of the services citizens ask about most — trained on each department's own rules, forms, and eligibility criteria.</p>
+    </div>
+  </div>
+  <div class="counters wrap" style="padding-left:0;padding-right:0;max-width:1180px;margin:0 auto;">
+    <div class="counter">
+      <div class="win-no">WINDOW 01</div>
+      <h3>Taxes</h3>
+      <p>Filing deadlines, applicable slabs, refund status, and document checklists.</p>
+    </div>
+    <div class="counter">
+      <div class="win-no">WINDOW 02</div>
+      <h3>Pensions</h3>
+      <p>Eligibility, enrollment steps, disbursement schedules, and grievance filing.</p>
+    </div>
+    <div class="counter">
+      <div class="win-no">WINDOW 03</div>
+      <h3>Certificates</h3>
+      <p>Birth, death, income, and domicile certificates — requirements and processing time.</p>
+    </div>
+    <div class="counter">
+      <div class="win-no">WINDOW 04</div>
+      <h3>Licenses</h3>
+      <p>Applications, renewals, fee schedules, and required documentation.</p>
+    </div>
+    <div class="counter">
+      <div class="win-no">WINDOW 05</div>
+      <h3>Welfare Schemes</h3>
+      <p>Scheme discovery, eligibility checks, and step-by-step application guidance.</p>
+    </div>
+  </div>
+</section>
+
+<section class="flow-band" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">How It Works</span>
+      <h2>From question to resolved query.</h2>
+      <p>Every response is grounded in official source documents — the assistant never guesses on matters of policy.</p>
+    </div>
+  </div>
+  <div class="flow wrap" style="padding-left:0;padding-right:0;max-width:1180px;margin:0 auto;">
+    <div class="flow-step">
+      <span class="fs-label">ASK</span>
+      <h3>Citizen asks, in their language</h3>
+      <p>Text or voice, in any of 12+ supported languages, on web, WhatsApp, or a service kiosk.</p>
+      <span class="flow-arrow">→</span>
+    </div>
+    <div class="flow-step">
+      <span class="fs-label">UNDERSTAND</span>
+      <h3>Intent is identified</h3>
+      <p>Natural language processing extracts the department, service, and specific need.</p>
+      <span class="flow-arrow">→</span>
+    </div>
+    <div class="flow-step">
+      <span class="fs-label">RETRIEVE</span>
+      <h3>Official documents consulted</h3>
+      <p>Relevant scheme rules, forms, and policy text are retrieved from verified sources.</p>
+      <span class="flow-arrow">→</span>
+    </div>
+    <div class="flow-step">
+      <span class="fs-label">RESPOND</span>
+      <h3>Grounded answer, with source</h3>
+      <p>A plain-language answer is generated and cited back to its originating document.</p>
+      <span class="flow-arrow">→</span>
+    </div>
+    <div class="flow-step">
+      <span class="fs-label">GUIDE</span>
+      <h3>Next steps, mapped out</h3>
+      <p>Application checklists and required documents are laid out step by step.</p>
+    </div>
+  </div>
+</section>
+
+<section id="outcomes">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Expected Outcome</span>
+      <h2>Less queue, more service.</h2>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="outcomes">
+      <div class="outcome">
+        <div class="num">↓ <span class="unit">Workload</span></div>
+        <p>Administrative staff are freed from repetitive queries to focus on complex cases.</p>
+      </div>
+      <div class="outcome">
+        <div class="num">↑ <span class="unit">Satisfaction</span></div>
+        <p>Citizens get accurate answers immediately, without navigating multiple offices.</p>
+      </div>
+      <div class="outcome">
+        <div class="num">24×7</div>
+        <p>Public services become available around the clock — no office hours required.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="try">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Try It Yourself</span>
+      <h2>Ask Sahayak a question.</h2>
+      <p>This is a scripted demo covering a handful of sample queries — a production assistant would connect to live department data.</p>
+    </div>
+  </div>
+  <div class="wrap">
+    <div style="max-width:640px;">
+      <div class="ticket">
+        <div class="ticket-head">
+          <span class="tk">Token · #A104</span>
+          <select class="lang-select" id="langSelect2">
+            <option value="English">EN — English</option>
+            <option value="Hindi">हिं — Hindi</option>
+            <option value="Telugu">తె — Telugu</option>
+            <option value="Tamil">த — Tamil</option>
+            <option value="Malayalam">മ — Malayalam</option>
+            <option value="Kannada">ಕ — Kannada</option>
+            <option value="Bhojpuri">भो — Bhojpuri</option>
+            <option value="Spanish">ES — Spanish</option>
+          </select>
+        </div>
+        <div class="ticket-body" id="chatBody2"></div>
+        <div class="ticket-foot">
+          <input id="chatInput2" type="text" placeholder="Ask about pensions, tax, certificates…">
+          <button id="chatSend2">Ask</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <div class="brand" style="margin-bottom:10px;">
+        <div class="seal" style="width:28px;height:28px;font-size:0.85rem;">S</div>
+        <div class="brand-name">Sahayak</div>
+      </div>
+      <p>An AI-powered citizen service assistant concept — demo interface only, not connected to live government systems.</p>
+    </div>
+    <div class="fine">PROTOTYPE · NOT FOR PRODUCTION USE</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Mock "official document" knowledge base the assistant is grounded in.
+  // In production this would come from a real retrieval (RAG) pipeline over
+  // each department's actual documents, forms, and policy text.
+  const KNOWLEDGE_BASE = `
+[Pension & Welfare Dept, Scheme Handbook §4.2]
+To apply for a pension: proof of age, a bank account, and a residence certificate are required. Applications can be submitted online or at the local welfare office. Disbursement begins within 30 days of approval.
+
+[Revenue Dept, Filing Guidelines §2.1]
+Tax filing is open until the department's published deadline each cycle. Required: income statement, ID proof, and the previous year's filing reference number. Refunds are processed within 45 days of filing.
+
+[Municipal Records Office, Certificate Procedures §1.3]
+For a birth certificate: hospital discharge summary, parents' ID proof, and the application form, submitted at the municipal office. Processing takes 7-10 working days. Death and domicile certificates follow a similar process with different supporting documents.
+
+[Licensing Authority, Renewal Rules §3.4]
+License renewals require the existing license number, a recent photograph, and the renewal fee. Most renewals can be completed online; first-time licenses require an in-person visit.
+
+[Welfare Schemes Directory §1.0]
+Welfare scheme eligibility depends on household income, category, and location. Citizens should describe their situation so the applicable scheme can be identified.
+`.trim();
+
+  function systemPromptFor(languageName){
+    return `You are Sahayak, an AI citizen service assistant for a government portal. You answer citizen questions ONLY using the official information provided below — never invent policy details.
+
+Respond ONLY in ${languageName}, regardless of what language the question is asked in. Keep the answer to 2-4 short sentences, plain and practical, written for someone unfamiliar with bureaucratic process. If the information below doesn't cover the question, say so politely (in ${languageName}) and suggest which department to contact instead.
+
+After your answer, on a new line, add a short citation starting with "Source:" (translate the word "Source" into ${languageName} too) naming the department/section from the information below that you used. If you couldn't answer from the information below, omit the Source line.
+
+OFFICIAL INFORMATION:
+${KNOWLEDGE_BASE}`;
+  }
+
+  const KEY_STORAGE = "sahayak_gemini_key";
+
+  function getApiKey(){
+    return localStorage.getItem(KEY_STORAGE) || "";
+  }
+
+  function setupKeyBar(){
+    const bar = document.getElementById("keyBar");
+    const input = document.getElementById("apiKeyInput");
+    const save = document.getElementById("apiKeySave");
+    const label = bar.querySelector(".key-bar-label");
+
+    function refresh(){
+      const key = getApiKey();
+      if(key){
+        bar.classList.add("saved");
+        label.textContent = "✓ Gemini API key saved in this browser. The live demo below is active.";
+        input.value = "";
+        input.placeholder = "Update key…";
+      } else {
+        bar.classList.remove("saved");
+        label.textContent = "🔑 Enter a free Google Gemini API key to activate the live demo below — it's stored only in your browser, never sent anywhere but Google's API.";
+      }
+    }
+
+    save.addEventListener("click", () => {
+      const val = input.value.trim();
+      if(!val) return;
+      localStorage.setItem(KEY_STORAGE, val);
+      refresh();
+      document.dispatchEvent(new Event("apiKeyChanged"));
+    });
+    input.addEventListener("keydown", e => { if(e.key === "Enter") save.click(); });
+
+    refresh();
+  }
+
+  async function callClaude(systemPrompt, userText){
+    const apiKey = getApiKey();
+    if(!apiKey){
+      const err = new Error("NO_KEY");
+      err.code = "NO_KEY";
+      throw err;
+    }
+    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(apiKey);
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: "user", parts: [{ text: userText }] }],
+        generationConfig: { maxOutputTokens: 1000 }
+      })
+    });
+    if(!response.ok){
+      let msg = "API request failed: " + response.status;
+      try{
+        const errData = await response.json();
+        if(errData?.error?.message) msg = errData.error.message;
+      }catch(e){}
+      const err = new Error(msg);
+      err.code = (response.status === 400 || response.status === 403) ? "BAD_KEY" : "API_ERROR";
+      throw err;
+    }
+    const data = await response.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    return text ? text.trim() : "";
+  }
+
+  const STATIC_GREETINGS = {
+    English: "Hello. Ask me about taxes, pensions, certificates, licenses, or welfare schemes.",
+    Hindi: "नमस्ते। कर, पेंशन, प्रमाणपत्र, लाइसेंस, या कल्याण योजनाओं के बारे में पूछें।",
+    Telugu: "నమస్కారం. పన్నులు, పెన్షన్లు, సర్టిఫికేట్లు, లైసెన్సులు లేదా సంక్షేమ పథకాల గురించి అడగండి.",
+    Tamil: "வணக்கம். வரி, ஓய்வூதியம், சான்றிதழ், உரிமம் அல்லது நல திட்டங்கள் பற்றி கேளுங்கள்.",
+    Malayalam: "നമസ്കാരം. നികുതി, പെൻഷൻ, സർട്ടിഫിക്കറ്റ്, ലൈസൻസ്, ക്ഷേമ പദ്ധതികൾ എന്നിവയെക്കുറിച്ച് ചോദിക്കൂ.",
+    Kannada: "ನಮಸ್ಕಾರ. ತೆರಿಗೆ, ಪಿಂಚಣಿ, ಪ್ರಮಾಣಪತ್ರ, ಪರವಾನಗಿ ಅಥವಾ ಕಲ್ಯಾಣ ಯೋಜನೆಗಳ ಬಗ್ಗೆ ಕೇಳಿ.",
+    Bhojpuri: "प्रणाम। कर, पेंशन, प्रमाणपत्र, लाइसेंस, भा कल्याण योजना के बारे में पूछीं।",
+    Spanish: "Hola. Pregúntame sobre impuestos, pensiones, certificados, licencias o programas de bienestar."
+  };
+
+  async function getGreeting(languageName){
+    if(!getApiKey()){
+      return STATIC_GREETINGS[languageName] || STATIC_GREETINGS.English;
+    }
+    const sys = `Respond with exactly one short, warm sentence in ${languageName}, inviting a citizen to ask about government services such as taxes, pensions, certificates, licenses, or welfare schemes. Output only that sentence — no quotes, no preamble, no translation.`;
+    try{
+      return await callClaude(sys, "Generate the greeting.");
+    }catch(e){
+      return STATIC_GREETINGS[languageName] || STATIC_GREETINGS.English;
+    }
+  }
+
+  function setupChat(bodyId, inputId, sendId, selectId){
+    const body = document.getElementById(bodyId);
+    const input = document.getElementById(inputId);
+    const send = document.getElementById(sendId);
+    const select = document.getElementById(selectId);
+
+    function addMsg(text, who, src){
+      const div = document.createElement("div");
+      div.className = "msg " + who;
+      div.textContent = text;
+      if(src){
+        const s = document.createElement("span");
+        s.className = "src";
+        s.textContent = src;
+        div.appendChild(s);
+      }
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+      return div;
+    }
+
+    function addTyping(){
+      const div = document.createElement("div");
+      div.className = "msg bot typing";
+      div.innerHTML = "<span></span><span></span><span></span>";
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+      return div;
+    }
+
+    async function reset(){
+      body.innerHTML = "";
+      const typing = addTyping();
+      const greeting = await getGreeting(select.value);
+      typing.remove();
+      addMsg(greeting, "bot");
+    }
+
+    async function handle(){
+      const val = input.value.trim();
+      if(!val) return;
+      addMsg(val, "user");
+      input.value = "";
+      if(!getApiKey()){
+        const div = addMsg("Add a free Gemini API key in the bar at the top of the page to activate real answers.", "bot");
+        div.classList.add("error");
+        return;
+      }
+      send.disabled = true;
+      const typing = addTyping();
+      try{
+        const raw = await callClaude(systemPromptFor(select.value), val);
+        typing.remove();
+        const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
+        const srcLine = lines.find(l => /^(source|स्रोत|मूलम्|ఆధారం|ஆதாரம்|ഉറവിടം|ಮೂಲ|फुएंत)/i.test(l));
+        const mainText = srcLine ? lines.filter(l => l !== srcLine).join(" ") : lines.join(" ");
+        addMsg(mainText || raw, "bot", srcLine);
+      }catch(e){
+        typing.remove();
+        let msg = "Sorry, the assistant couldn't reach the AI service just now. Please try again.";
+        if(e.code === "BAD_KEY") msg = "That API key was rejected. Check it in the bar at the top and save again.";
+        const div = addMsg(msg, "bot");
+        div.classList.add("error");
+      }finally{
+        send.disabled = false;
+      }
+    }
+
+    send.addEventListener("click", handle);
+    input.addEventListener("keydown", e => { if(e.key === "Enter") handle(); });
+    select.addEventListener("change", reset);
+    document.addEventListener("apiKeyChanged", reset);
+
+    reset();
+  }
+
+  setupKeyBar();
+  setupChat("chatBody","chatInput","chatSend","langSelect");
+  setupChat("chatBody2","chatInput2","chatSend2","langSelect2");
+})();
+</script>
+
+</body>
+</html>
